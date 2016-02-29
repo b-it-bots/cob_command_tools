@@ -171,7 +171,7 @@ class emergency_stop_monitor():
 			for component in self.light_components:
 				srv_server_name = component + "/stop_light"
 				try:
-					rospy.wait_for_service('srv_server_name', timeout=2)
+					rospy.wait_for_service(srv_server_name, timeout=2)
 					srv_proxy = rospy.ServiceProxy(srv_server_name, StopLightMode)
 					req = StopLightModeRequest()
 					req.track_id = self.track_id_light
