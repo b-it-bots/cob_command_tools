@@ -167,7 +167,7 @@ class emergency_stop_monitor():
 
 				self.color = color
 	def stop_light(self):
-		if track_id_light is not None:
+		if self.track_id_light is not None:
 			for component in self.light_components:
 				srv_server_name = component + "/stop_mode"
 				try:
