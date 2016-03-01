@@ -161,41 +161,49 @@ class battery_monitor():
             # 5%
             if self.power_state.relative_remaining_capacity <= self.threshold_critical and (rospy.get_time() - self.last_time_warned) > 5:
                 self.last_time_warned = rospy.get_time()
-                mode = copy.copy(self.mode)
-                mode.mode = LightModes.FLASH
-                color = ColorRGBA(1, 0, 0, 1)
-                mode.colors = []
-                mode.colors.append(color)
-                mode.frequency = 5
-                mode.pulses = 4
-                self.set_light(mode)
 
-                self.say("My battery is empty, please recharge now.")
+                if self.enable_light:
+                    mode = copy.copy(self.mode)
+                    mode.mode = LightModes.FLASH
+                    color = ColorRGBA(1, 0, 0, 1)
+                    mode.colors = []
+                    mode.colors.append(color)
+                    mode.frequency = 5
+                    mode.pulses = 4
+                    self.set_light(mode)
+
+                if self.enable_sound:
+                    self.say("My battery is empty, please recharge now.")
 
             # 10%
             elif self.power_state.relative_remaining_capacity <= self.threshold_error and (rospy.get_time() - self.last_time_warned) > 15:
                 self.last_time_warned = rospy.get_time()
-                mode = copy.copy(self.mode)
-                mode.mode = LightModes.FLASH
-                color = ColorRGBA(1, 0, 0, 1)
-                mode.colors = []
-                mode.colors.append(color)
-                mode.frequency = 2
-                mode.pulses = 2
-                self.set_light(mode)
+
+                if self.enable_light:
+                    mode = copy.copy(self.mode)
+                    mode.mode = LightModes.FLASH
+                    color = ColorRGBA(1, 0, 0, 1)
+                    mode.colors = []
+                    mode.colors.append(color)
+                    mode.frequency = 2
+                    mode.pulses = 2
+                    self.set_light(mode)
             # 20%
             elif self.power_state.relative_remaining_capacity <= self.threshold_warning and (rospy.get_time() - self.last_time_warned) > 30:
                 self.last_time_warned = rospy.get_time()
-                mode = copy.copy(self.mode)
-                mode.mode = LightModes.FLASH
-                color = ColorRGBA(1, 1, 0, 1)
-                mode.colors = []
-                mode.colors.append(color)
-                mode.frequency = 2
-                mode.pulses = 2
-                self.set_light(mode)
 
-                self.say("My battery is nearly empty, please consider recharging.")
+                if self.enable_light:
+                    mode = copy.copy(self.mode)
+                    mode.mode = LightModes.FLASH
+                    color = ColorRGBA(1, 1, 0, 1)
+                    mode.colors = []
+                    mode.colors.append(color)
+                    mode.frequency = 2
+                    mode.pulses = 2
+                    self.set_light(mode)
+
+                if self.enable_sound:
+                    self.say("My battery is nearly empty, please consider recharging.")
 
         if self.is_charging == False and self.power_state.charging == True:
             self.is_charging = True
@@ -209,27 +217,29 @@ class battery_monitor():
             # only change color mode if capacity change is bigger than 2%
             if abs(self.relative_remaining_capacity - self.power_state.relative_remaining_capacity) > 2:
                 rospy.logdebug('adjusting leds')
-                mode = copy.copy(self.mode)
-                if self.num_leds > 1:
-                    leds = int(self.num_leds * self.power_state.relative_remaining_capacity / 100.)
-                    mode.mode = LightModes.CIRCLE_COLORS
-                    mode.frequency = 60.0
-                    mode.colors = []
-                    color = ColorRGBA(0.0, 1.0, 0.7, 0.4)
-                    for i in range(leds):
-                        mode.colors.append(color)
-                else:
-                    mode.mode = LightModes.BREATH
-                    mode.frequency = 0.4
-                    # 0.34 => green in hsv space
-                    hue = 0.34 * (self.power_state.relative_remaining_capacity / 100.0)
-                    rgb = colorsys.hsv_to_rgb(hue, 1, 1)
-                    color = ColorRGBA(rgb[0], rgb[1], rgb[2], 1.0)
-                    mode.colors = []
-                    mode.colors.append(color)
 
-                self.relative_remaining_capacity = self.power_state.relative_remaining_capacity
-                self.set_light(mode, True)
+                if self.enable_sound:
+                    mode = copy.copy(self.mode)
+                    if self.num_leds > 1:
+                        leds = int(self.num_leds * self.power_state.relative_remaining_capacity / 100.)
+                        mode.mode = LightModes.CIRCLE_COLORS
+                        mode.frequency = 60.0
+                        mode.colors = []
+                        color = ColorRGBA(0.0, 1.0, 0.7, 0.4)
+                        for i in range(leds):
+                            mode.colors.append(color)
+                    else:
+                        mode.mode = LightModes.BREATH
+                        mode.frequency = 0.4
+                        # 0.34 => green in hsv space
+                        hue = 0.34 * (self.power_state.relative_remaining_capacity / 100.0)
+                        rgb = colorsys.hsv_to_rgb(hue, 1, 1)
+                        color = ColorRGBA(rgb[0], rgb[1], rgb[2], 1.0)
+                        mode.colors = []
+                        mode.colors.append(color)
+
+                    self.relative_remaining_capacity = self.power_state.relative_remaining_capacity
+                    self.set_light(mode, True)
 
 
 if __name__ == "__main__":
