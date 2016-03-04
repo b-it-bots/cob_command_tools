@@ -3,7 +3,12 @@ project(cob_interactive_teleop)
 
 find_package(catkin REQUIRED COMPONENTS geometry_msgs interactive_markers roscpp std_msgs tf visualization_msgs)
 
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS
+    geometry_msgs
+    std_msgs
+    visualization_msgs
+)
 
 ### Build ###
 include_directories(include ${catkin_INCLUDE_DIRS})
